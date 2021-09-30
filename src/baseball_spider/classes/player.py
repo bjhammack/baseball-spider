@@ -1,7 +1,7 @@
 from typing import Optional
 
-from selenium_manager import create_driver
-import player_ids as ids
+from baseball_spider.spider.selenium_manager import create_driver
+import baseball_spider.spider.player_ids as ids
 
 
 class Player:
@@ -22,5 +22,5 @@ class Player:
         pos_abbrv: Optional[str]
         ):
         players_df = ids.get_current_players()
-        if player_id:
+        
 

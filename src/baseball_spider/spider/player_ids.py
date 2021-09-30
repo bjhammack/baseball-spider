@@ -34,7 +34,9 @@ def get_current_ids(
     return players_df
 
 
-def update_players(driver: 'selenium webdriver'):
+def update_players(
+    driver: 'selenium.webdriver.chrome.webdriver.WebDriver'
+    ):
     '''
     Updates the player ID CSV by pulling a list of all players on mlb.com, 
     retrieving their player IDs and visiting their page to get their information.
@@ -42,7 +44,7 @@ def update_players(driver: 'selenium webdriver'):
     args:
         driver: selenium webdriver used to connect to the website
     '''
-    player_dict = {'name':[], 'player_id':[]}
+    player_dict = {'name':[str], 'player_id':[str]}
     player_list_url = 'https://www.mlb.com/players'
     driver.get(player_list_url)
     player_links = driver.find_elements_by_class_name('p-related-links__link')

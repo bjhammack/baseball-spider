@@ -1,5 +1,5 @@
 import pandas as pd
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from baseball_spider.spider.player_ids import get_current_ids
 from baseball_spider.spider.selenium_manager import create_driver
@@ -8,7 +8,7 @@ from baseball_spider.spider.selenium_manager import create_driver
 def get_player_bio(
     player_id: str,
     driver: Optional['selenium.webdriver.chrome.webdriver.WebDriver'] = None,
-    ) -> dict:
+    ) -> Optional[Dict[str, str]]:
     '''
     Queries baseballsavant.mlb.com to get biographical information on a player.
 
@@ -26,6 +26,9 @@ def get_player_bio(
             return info_dict
     except:
         print('player_bios.csv either does not exist or player is not in it.')
+    if not driver:
+        print('No existing data found and no driver provided for scraping.')
+        return
     info_dict = {}
     url = f'https://baseballsavant.mlb.com/savant-player/{player_id}'
     driver.get(url)
@@ -55,9 +58,12 @@ def get_all_bios(
         bios_df: Pandas DataFrame of all player bios
     '''
     try:
-        bios_df = pd.read_csv('data/player_bios.csv')
+        bios_df = pd.read_csv('./spider/data/player_bios.csv')
         return bios_df
-    except:
+    except Exception as e:
+        import os
+        print(os.getcwd())
+        print(e)
         print('player_bios.csv either does not exist or player is not in it.')
     ids = get_current_ids(driver if driver else None)
     final_info = {'player_id':[], 'name':[], 'position':[]}

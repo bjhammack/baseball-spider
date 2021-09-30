@@ -20,6 +20,6 @@ def prep_logger(log_prefix:str, log_dir:str='logs'):
     f_format = logging.Formatter('[%(asctime)s] - %(name)s - %(levelname)s - %(message)s')
     f_handler.setFormatter(f_format)
     logger.addHandler(f_handler)
-    keep_fds = [f_handler.stream.fileno()]
+    #keep_fds = [f_handler.stream.fileno()]
 
-    return logger, keep_fds
+    return logger
