@@ -1,3 +1,6 @@
+src/baseball_spider/data_spider/data/*
+src/baseball_spider/data_spider/logs/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
