@@ -2,12 +2,12 @@ from datetime import datetime as dt
 from os.path import exists, isdir, join
 from os import mkdir
 import pandas as pd
-from selenium_manager import create_driver
 import traceback
 from typing import Optional
 
-from player_ids import get_current_ids
-from bio import get_player_bio, get_all_bios
+from baseball_spider.spider.selenium_manager import create_driver
+from baseball_spider.spider.player_ids import get_current_ids
+from baseball_spider.spider.bio import get_player_bio, get_all_bios
 
 
 def gather_all_at_bats(parent_path: str):

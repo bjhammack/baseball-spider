@@ -1,8 +1,8 @@
 import pandas as pd
 from typing import Optional
 
-from bio import get_player_bio
-from selenium_manager import create_driver
+from baseball_spider.spider.bio import get_player_bio
+from baseball_spider.spider.selenium_manager import create_driver
 
 
 def get_player_season(

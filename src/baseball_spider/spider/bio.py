@@ -1,10 +1,14 @@
 import pandas as pd
-from player_ids import get_current_ids
-from selenium_manager import create_driver
 from typing import Optional
 
+from baseball_spider.spider.player_ids import get_current_ids
+from baseball_spider.spider.selenium_manager import create_driver
 
-def get_player_bio(player_id: str, driver: 'selenium webdriver' = None) -> dict:
+
+def get_player_bio(
+    player_id: str,
+    driver: Optional['selenium.webdriver.chrome.webdriver.WebDriver'] = None,
+    ) -> dict:
     '''
     Queries baseballsavant.mlb.com to get biographical information on a player.
 

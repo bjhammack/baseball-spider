@@ -1,9 +1,9 @@
 from typing import Optional
-
-from logger import prep_logger
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.utils import ChromeType
+
+from baseball_spider.spider.logger import prep_logger
 
 
 def create_driver(
