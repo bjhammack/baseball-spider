@@ -53,8 +53,8 @@ def gather_all_at_bats(parent_path: str):
 def get_at_bats(
     player_id: str,
     season: int,
-    driver: Optional['selenium.webdriver.chrome.webdriver.WebDriver'] = None,
-    logger: Optional['logging.Logger'] = None,
+    driver: Optional['selenium.webdriver'] = None, # type: ignore
+    logger: Optional['logging.Logger'] = None, # type: ignore
     ignore_files: bool = False,
     save: bool = False,
     save_filepath: Optional[str] = None,

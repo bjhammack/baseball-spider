@@ -3,12 +3,10 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.utils import ChromeType
 
-from baseball_spider.spider.logger import prep_logger
-
 
 def create_driver(
     driver_path: Optional[str] = None,
-    driver_options: Optional['selenium.webdriver.options'] = None
+    driver_options: Optional['selenium.webdriver.options'] = None # type: ignore
     ) -> webdriver:
     '''
     Prepare Selenium webdriver for scraping and setting chromedriver arguments
@@ -45,4 +43,4 @@ def create_driver(
                 ).install(),
             options=options)
 
-    return driver, prep_logger('spider')
+    return driver
