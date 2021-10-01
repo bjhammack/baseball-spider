@@ -1,20 +1,19 @@
 from typing import Optional
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.utils import ChromeType
 
 
 def create_driver(
-    driver_path: Optional[str] = None,
-    driver_options: Optional['selenium.webdriver.options'] = None # type: ignore
-    ) -> webdriver:
+        driver_path: Optional[str] = None,
+        driver_options: Optional['webdriver.options'] = None
+        ) -> webdriver:
     '''
     Prepare Selenium webdriver for scraping and setting chromedriver arguments
-    
+
     Args:
         driver_path: path to user defined webdriver. If none, driver is created
         driver_options: options for driver, otherwise uses defaults
-        
+
     Returns:
         selenium driver for webscraping
         logger for logging results

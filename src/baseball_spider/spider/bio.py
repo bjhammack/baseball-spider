@@ -1,16 +1,20 @@
 import pandas as pd
-from typing import Optional, Dict, Any, Sequence, Type
+from typing import Optional, Dict, Any, Sequence, Type, TYPE_CHECKING
 
 from baseball_spider.spider.player_ids import _get_current_ids
 from baseball_spider.spider.selenium_manager import create_driver
 
+if TYPE_CHECKING:
+    import logging
+    from selenium import webdriver
+
 
 def get_player_bio(
-    player_id: str,
-    parent_data_dir: Optional[str] = None,
-    webscrape: bool = True,
-    driver: Optional['selenium.webdriver'] = None, # type: ignore
-    ) -> Dict[str, str]:
+        player_id: str,
+        parent_data_dir: Optional[str] = None,
+        webscrape: bool = True,
+        driver: Optional['webdriver'] = None,
+        ) -> Dict[str, str]:
     '''
     Queries baseballsavant.mlb.com to get biographical information on a player.
 
@@ -44,7 +48,7 @@ def get_player_bio(
     info_dict['name'] = info_div.find_element_by_xpath('div[1]').text
     details_row = info_div.find_element_by_xpath('div[2]').text
     info_dict['position'] = details_row.split()[0]
-    if info_dict['position'] in ('LF','RF','CF'):
+    if info_dict['position'] in ('LF', 'RF', 'CF'):
         info_dict['position'] = 'OF'
     info_dict['player_id'] = player_id
     driver.close()
@@ -53,12 +57,12 @@ def get_player_bio(
 
 
 def get_all_bios(
-    parent_data_dir: Optional[str] = None,
-    webscrape: bool = True,
-    driver: Optional['selenium.webdriver'] = None, # type: ignore
-    save_data_filepath: Optional[str] = None,
-    logger: Optional['logging.Logger'] = None # type: ignore
-    ) -> Sequence[Type[Dict[Any, Any]]]:
+        parent_data_dir: Optional[str] = None,
+        webscrape: bool = True,
+        driver: Optional['webdriver'] = None,
+        save_data_filepath: Optional[str] = None,
+        logger: Optional['logging.Logger'] = None
+        ) -> Sequence[Type[Dict[Any, Any]]]:
     '''
     Gets all bios from exisiting bios file or pulls bios from web if file DNE.
 
@@ -85,11 +89,11 @@ def get_all_bios(
         driver = create_driver()
     ids = _get_current_ids(parent_data_dir=parent_data_dir, driver=driver)
     all_players = [dict]
-    for player_id in ids.player_id:
+    for player_id in ids.player_id:  # type: ignore
         player_bio = get_player_bio(player_id, driver)
         if logger:
             logger.info(f'Bio for {player_bio["name"]} gathered.')
-        all_players.append(player_bio) # type: ignore
+        all_players.append(player_bio)  # type: ignore
     if save_data_filepath:
         bios_df = pd.DataFrame(all_players)
         bios_df.to_csv(f'{save_data_filepath}', index=False)
