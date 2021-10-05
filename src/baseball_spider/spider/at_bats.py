@@ -45,7 +45,7 @@ def gather_all_at_bats(parent_path: str):
                     continue
                 save_filepath = f'{parent_path}{v["position"]}/{v["player_id"]}_{season}.csv'
                 save_at_bats(atbat_dict, save_filepath)
-            except:
+            except Exception:
                 if logger:
                     error = traceback.format_exc()
                     logger.error(f'Error during {v["player_id"]}-{season} retrieval: {error}')
@@ -55,7 +55,7 @@ def gather_all_at_bats(parent_path: str):
 def get_at_bats(
         player_id: str,
         season: int,
-        parent_data_dir: Optional[str],
+        parent_data_dir: Optional[str] = None,
         webscrape: bool = True,
         driver: Optional['webdriver'] = None,
         logger: Optional['logging.Logger'] = None,
@@ -79,11 +79,16 @@ def get_at_bats(
     '''
     if logger:
         logger.info(f'Attemping to retrieve at-bats for {player_id} in {season}.')
-    info = get_player_bio(player_id=player_id, driver=driver)
+    info = get_player_bio(
+        player_id=player_id,
+        driver=driver,
+        webscrape=webscrape,
+        parent_data_dir=parent_data_dir
+        )
     if logger:
         logger.info(f'Bio for {info["name"]} retrieved.')
 
-    if not ignore_files:
+    if not ignore_files and parent_data_dir:
         try:
             filepath = (
                 f'{parent_data_dir}/at_bats/{info["position"]}/'
@@ -93,11 +98,11 @@ def get_at_bats(
             if logger:
                 logger.info(f'Existing data for {info["name"]} found for {season}.')
             return atbat_dict
-        except:
+        except FileNotFoundError as e:
             if logger:
                 logger.info(f'No existing data for {info["name"]} found for {season}.')
             if not webscrape:
-                raise Exception('No local data found and webscrape=False. Aborting.')
+                raise FileNotFoundError(e)
     atbat_dict = {
         'player_id': [],
         'date': [],

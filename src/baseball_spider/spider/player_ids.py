@@ -36,7 +36,7 @@ def _get_current_ids(
 
     try:
         players = pd.read_csv(id_files[-1]).to_dict('list')
-    except:
+    except Exception:
         raise Exception('No player IDs available to read. Check file location \
             or include a driver to scrape new player IDs.')
 

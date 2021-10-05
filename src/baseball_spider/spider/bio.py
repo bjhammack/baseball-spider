@@ -30,15 +30,18 @@ def get_player_bio(
     '''
     try:
         if not parent_data_dir:
-            raise Exception('No local data specified.')
+            raise FileNotFoundError('No local data specified.')
         info_df = pd.read_csv(f'{parent_data_dir}/player_bios.csv')
         info_dict = info_df.loc[info_df.player_id.eq(player_id)].to_dict('records')[0]
-        if len(info_dict['player_id']) > 1:
-            return info_dict
-    except:
-        print('player_bios.csv either does not exist or player is not in it.')
-    if not webscrape:
-        raise Exception('No existing data found and no driver provided for scraping.')
+        return info_dict
+    except IndexError as e:
+        print('Player not found in specified player_bios.csv.')
+        if not webscrape:
+            raise IndexError(e)
+    except FileNotFoundError as e:
+        print('player_bios.csv could not be found.')
+        if not webscrape:
+            raise FileNotFoundError(e)
     if not driver:
         driver = create_driver()
     info_dict = {}
@@ -78,13 +81,13 @@ def get_all_bios(
     '''
     try:
         if not parent_data_dir:
-            raise Exception('No local data specified.')
+            raise FileNotFoundError('parent_data_dir not specified.')
         bios_df = pd.read_csv(f'{parent_data_dir}/player_bios.csv')
         return bios_df.to_dict('records')
-    except:
+    except FileNotFoundError as e:
         print('player_bios.csv either does not exist or player is not in it.')
-    if not webscrape:
-        raise Exception('No existing data found and no driver provided for scraping.')
+        if not webscrape:
+            raise FileNotFoundError(e)
     if not driver:
         driver = create_driver()
     ids = _get_current_ids(parent_data_dir=parent_data_dir, driver=driver)

@@ -30,6 +30,7 @@ def create_driver(
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-extensions')
         options.add_argument('--disable-software-rasterizer')
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
     if driver_path:
         driver = webdriver.Chrome(executable_path=driver_path, options=options)
