@@ -28,7 +28,7 @@ def trea_2021():
 @pytest.fixture
 def bummer_2020():
     '''
-    Minor changes need to be made to the file data, as it is scraped as all strings.
+    Data is scraped with different datatypes (all strs), so CSV data is altered.
     '''
     at_bats = read_csv('tests/test_data/at_bats/P/aaron-bummer-607481_2020.csv')
     at_bats = at_bats.fillna('').astype(str)
