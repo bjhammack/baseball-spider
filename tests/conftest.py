@@ -30,8 +30,13 @@ def bummer_2020():
     '''
     Data is scraped with different datatypes (all strs), so CSV data is altered.
     '''
-    at_bats = read_csv('tests/test_data/at_bats/P/aaron-bummer-607481_2020.csv')
+    at_bats = read_csv('tests/test_data/at_bats/aaron-bummer-607481_2020.csv')
     at_bats = at_bats.fillna('').astype(str)
     at_bats['la'] = at_bats['la'].str.split('.', expand=True)[0]
     at_bats['distance'] = at_bats['distance'].str.split('.', expand=True)[0]
     return at_bats.to_dict('list')
+
+
+@pytest.fixture(scope='session')
+def driver():
+    return create_driver()

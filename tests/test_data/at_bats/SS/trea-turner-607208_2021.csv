@@ -1,6 +1,0 @@
-player_id,date,opponent,result,ev,la,distance,direction,pitch_velo,pitch_type
-trea-turner-607208,4/7/2021,"Fried, Max",double,104.2,11,256,Straightaway,76.2,Curveball
-trea-turner-607208,4/6/2021,"Smith, Will",hit_by_pitch,,,,,82.1,Slider
-trea-turner-607208,4/6/2021,"Smyly, Drew",field_out,100.3,-17,8,Pull,93.4,4-Seam Fastball
-trea-turner-607208,4/6/2021,"Smyly, Drew",home_run,101.6,26,402,Pull,91.7,4-Seam Fastball
-trea-turner-607208,4/6/2021,"Smyly, Drew",strikeout,,,,,94.3,4-Seam Fastball

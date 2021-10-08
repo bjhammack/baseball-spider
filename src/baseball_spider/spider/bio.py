@@ -1,4 +1,5 @@
 import pandas as pd
+from selenium.common.exceptions import InvalidSessionIdException
 from typing import Optional, Dict, Any, Sequence, Type, TYPE_CHECKING
 
 from baseball_spider.spider.player_ids import _get_current_ids
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
 
 def get_player_bio(
         player_id: str,
-        parent_data_dir: Optional[str] = None,
+        filepath: Optional[str] = None,
         webscrape: bool = True,
         driver: Optional['webdriver'] = None,
         ) -> Dict[str, str]:
@@ -20,7 +21,7 @@ def get_player_bio(
 
     args:
         player_id: mlb.com player ID for given player
-        parent_data_dir: parent folder for all locally stored data
+        filepath: filepath for all locally stored data
         webscrape: if webscrape, then create a driver if one is not provided
                    for scraping
         driver: selenium webdriver being used to connect to the website
@@ -29,9 +30,9 @@ def get_player_bio(
         info_dict: dictionary of player info
     '''
     try:
-        if not parent_data_dir:
+        if not filepath:
             raise FileNotFoundError('No local data specified.')
-        info_df = pd.read_csv(f'{parent_data_dir}/player_bios.csv')
+        info_df = pd.read_csv(f'{filepath}')
         info_dict = info_df.loc[info_df.player_id.eq(player_id)].to_dict('records')[0]
         return info_dict
     except IndexError as e:
@@ -46,7 +47,11 @@ def get_player_bio(
         driver = create_driver()
     info_dict = {}
     url = f'https://baseballsavant.mlb.com/savant-player/{player_id}'
-    driver.get(url)
+    try:
+        driver.get(url)
+    except InvalidSessionIdException:
+        driver = create_driver()
+        driver.get(url)
     info_div = driver.find_element_by_class_name('bio-player-name')
     info_dict['name'] = info_div.find_element_by_xpath('div[1]').text
     details_row = info_div.find_element_by_xpath('div[2]').text
