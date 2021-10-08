@@ -1,63 +1,17 @@
-from datetime import datetime as dt
-from os.path import isdir, join
-from os import mkdir
 import pandas as pd
 from selenium.common.exceptions import TimeoutException, InvalidSessionIdException
 from time import sleep
-import traceback
 from typing import Optional, Dict, Any, List, TYPE_CHECKING
 
 from baseball_spider.spider.selenium_manager import create_driver
-from baseball_spider.spider.bio import get_player_bio, get_all_bios
+from baseball_spider.spider.bio import get_player_bio
 
 if TYPE_CHECKING:
     import logging
     from selenium import webdriver
 
 
-def get_multi_player_abs(
-    id_season_list: List[tuple],
-    parent_path: str
-    ) -> Optional[List[Dict[Any, Any]]]:
-    '''
-    Gets all player bios, then loops through players, pulling all their seasons.
-    Saves data in sub directories sorted by season (function will create sub
-    folders for each position and store players there if they do not exist).
-
-    args:
-        parent_path: path to folder all players will be under (must have '/' at
-                     the end)
-    '''
-    driver, logger = create_driver()
-    positions = ['1B', '2B', '3B', 'SS', 'OF', 'C', 'P']
-    if not isdir(parent_path):
-        raise Exception('Parent path does not exist. Specify an existing path.')
-    for position in positions:
-        full_path = join(parent_path, position)
-        if not isdir(full_path):
-            mkdir(full_path)
-            logger.info(f'Created path {full_path}.')
-        else:
-            logger.info(f'Using existing path {full_path}.')
-    bios_df = get_all_bios(driver, logger)
-    failed = []
-    seasons = list(range(2015, dt.now().year+1))
-    for k, v in bios_df.iterrows():  # type: ignore
-        for season in seasons:
-            try:
-                atbat_dict = get_player_abs(v["player_id"], season, driver, logger)
-                if len(atbat_dict['player_id']) < 1:
-                    continue
-                save_filepath = f'{parent_path}{v["position"]}/{v["player_id"]}_{season}.csv'
-                save_at_bats(atbat_dict, save_filepath)
-            except Exception:
-                if logger:
-                    error = traceback.format_exc()
-                    logger.error(f'Error during {v["player_id"]}-{season} retrieval: {error}')
-                failed.append(f'{v["player_id"]} - {season}')
-
-
-def get_player_abs(
+def get_player_abs(  # type: ignore
         player_id_season: str,
         webscrape: bool = True,
         driver: Optional['webdriver'] = None,
@@ -67,13 +21,14 @@ def get_player_abs(
         player_bios_path: Optional[str] = None,
         save_folder_path: Optional[str] = None,
         return_data: bool = True,
-        ) -> Optional[List[Dict[Any, Any]]]:
+        ) -> List[Dict[Any, Any]]:
     '''
     Queries baseballsavant.mlb.com for the statcast gamelogs of a given player
     during a given season.
 
     Args:
         player_id_season: tuple or list of tuples of (player_id, season)
+        webscrape: specify whether data should be scraped if necessary
         driver: selenium webdriver being used to connect to the website
         logger: python logger for backtracing
         ignore_files: ignores if a CSV already exists and scrapes the data
@@ -86,8 +41,8 @@ def get_player_abs(
         atbat_dict: optional list of dictionaries of at bats scraped
     '''
     players = []
-    if type(player_id_season) is tuple:
-        player_id_season = [player_id_season,]
+    if type(player_id_season) is tuple:  # type: ignore
+        player_id_season = [player_id_season, ]  # type: ignore
     for player in player_id_season:
         player_id = player[0]
         season = player[1]
@@ -114,7 +69,8 @@ def get_player_abs(
                     logger.info(
                         f'Existing data for {info["name"]} found for {season}.'
                         )
-                players.append(atbat_dict)
+                if return_data:
+                    players.append(atbat_dict)
                 continue
             except FileNotFoundError as e:
                 if logger:
@@ -193,6 +149,13 @@ def get_player_abs(
 
 
 def save_at_bats(at_bats: Dict[Any, Any], filepath: str):
+    '''
+    Saves at bat data to specified filepath.
+
+    args:
+        at_bats: dictionary of at bat data
+        filepath: filepath the data will be saved to
+    '''
     if len(at_bats['player_id']) < 1:
         raise ValueError('The at bat dictionary is empty. Data cannot be saved.')
     pd.DataFrame(at_bats).to_csv(filepath)
