@@ -1,4 +1,5 @@
 from numpy.testing import assert_equal  # used when nans may be present in result
+from pandas import read_csv
 import pytest
 from selenium.common.exceptions import InvalidSessionIdException, NoSuchElementException
 
@@ -88,3 +89,19 @@ def test_scraping_at_bats_bad_id(driver):
             player_bios_path = 'tests/test_data/player_bios.csv',
             driver = driver,
             )
+
+
+def test_save_at_bats(tmpdir, trea_2021):
+    save_location_folder = tmpdir.mkdir('player')
+    at_bats.get_player_abs(
+        player_id_season = ('trea-turner-607208', 2021),
+        existing_data_folder_path = 'tests/test_data/at_bats/',
+        player_bios_path = 'tests/test_data/player_bios.csv',
+        webscrape = False,
+        save_folder_path = save_location_folder,
+        return_data = False,
+        )
+    save_location = save_location_folder.join('trea-turner-607208_2021.csv')
+    saved_data = read_csv(save_location).to_dict('list')
+    assert len(save_location_folder.listdir()) == 1
+    assert_equal(saved_data, trea_2021)

@@ -28,7 +28,7 @@ def get_player_abs(  # type: ignore
 
     Args:
         player_id_season: tuple or list of tuples of (player_id, season)
-        webscrape: specify whether data should be scraped if necessary
+        webscrape: specify whether data should be scraped if necessarygit 
         driver: selenium webdriver being used to connect to the website
         logger: python logger for backtracing
         ignore_files: ignores if a CSV already exists and scrapes the data
@@ -68,6 +68,11 @@ def get_player_abs(  # type: ignore
                 if logger:
                     logger.info(
                         f'Existing data for {info["name"]} found for {season}.'
+                        )
+                if save_folder_path:
+                    save_at_bats(
+                        atbat_dict,
+                        save_folder_path+f'/{player_id}_{season}.csv'
                         )
                 if return_data:
                     players.append(atbat_dict)
@@ -158,4 +163,4 @@ def save_at_bats(at_bats: Dict[Any, Any], filepath: str):
     '''
     if len(at_bats['player_id']) < 1:
         raise ValueError('The at bat dictionary is empty. Data cannot be saved.')
-    pd.DataFrame(at_bats).to_csv(filepath)
+    pd.DataFrame(at_bats).to_csv(filepath, index=False)
