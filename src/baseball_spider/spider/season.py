@@ -23,7 +23,8 @@
 #     '''
 #     try:
 #         player_bio = get_player_bio(player_id)
-#         player_bio = bios_df.loc[bios_df.player_id.eq(player_id)].to_dict('records')[0]
+#         player_bio = bios_df.loc[
+#             bios_df.player_id.eq(player_id)].to_dict('records')[0]
 #         if len(player_bios['player_id']) < 1:
 #             return info_dict
 #     except:

@@ -28,7 +28,7 @@ def get_player_abs(  # type: ignore
 
     Args:
         player_id_season: tuple or list of tuples of (player_id, season)
-        webscrape: specify whether data should be scraped if necessarygit 
+        webscrape: specify whether data should be scraped if necessary
         driver: selenium webdriver being used to connect to the website
         logger: python logger for backtracing
         ignore_files: ignores if a CSV already exists and scrapes the data
@@ -161,6 +161,16 @@ def save_at_bats(at_bats: Dict[Any, Any], filepath: str):
         at_bats: dictionary of at bat data
         filepath: filepath the data will be saved to
     '''
+    expected_keys = ['player_id', 'date', 'opponent', 'result', 'ev', 'la',
+            'distance', 'direction', 'pitch_velo', 'pitch_type']
+    actual_keys = list(at_bats.keys())
+    expected_keys.sort()
+    actual_keys.sort()
+    if len(actual_keys) == 0 or expected_keys != actual_keys:
+        raise ValueError(
+            f'Expected dictionary with keys: {expected_keys}.'
+            f'Got: {tuple(at_bats.keys())}'
+            )
     if len(at_bats['player_id']) < 1:
         raise ValueError('The at bat dictionary is empty. Data cannot be saved.')
     pd.DataFrame(at_bats).to_csv(filepath, index=False)
