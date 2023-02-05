@@ -1,134 +1,176 @@
-from datetime import datetime as dt
-from os.path import exists, isdir, join
-from os import mkdir
 import pandas as pd
-import traceback
-from typing import Optional
+from selenium.common.exceptions import TimeoutException, InvalidSessionIdException
+from time import sleep
+from typing import Optional, Dict, Any, List, TYPE_CHECKING
 
 from baseball_spider.spider.selenium_manager import create_driver
-from baseball_spider.spider.player_ids import get_current_ids
-from baseball_spider.spider.bio import get_player_bio, get_all_bios
+from baseball_spider.spider.bio import get_player_bio
+
+if TYPE_CHECKING:
+    import logging
+    from selenium import webdriver
 
 
-def gather_all_at_bats(parent_path: str):
-    '''
-    Gets all player bios, then loops through players, pulling all their seasons.
-    Saves data in sub directories sorted by season (function will create sub
-    folders for each position and store players there if they do not exist).
-
-    args:
-        parent_path: path to folder all players will be under (must have '/' at
-                     the end)
-    '''
-    driver, logger = create_driver()
-    positions = ['1B','2B','3B','SS','OF','C','P']
-    if not isdir(parent_path):
-        raise Exception('Parent path does not exist. Specify an existing path.')
-    for position in positions:
-        full_path = join(parent_path, position)
-        if not isdir(full_path):
-            mkdir(full_path)
-            logger.info(f'Created path {full_path}.')
-        else:
-            logger.info(f'Using existing path {full_path}.')
-    bios_df = get_all_bios(driver, logger)
-    failed = []
-    seasons = list(range(2015,dt.now().year+1))
-    for k,v in bios_df.iterrows():    
-        for season in seasons:
-            try:
-                atbat_dict = get_at_bats(v["player_id"], season, driver, logger)
-                if len(atbat_dict['player_id']) < 1:
-                    continue
-                df = pd.DataFrame(atbat_dict)
-                save_filepath = f'{parent_path}{v["position"]}/{v["player_id"]}_{season}.csv'
-                save_at_bats(atbat_dict, save_filepath)
-            except:
-                error = traceback.format_exc()
-                logger.error(f'Error during {v["player_id"]}-{season} retrieval: {error}')
-                print(f'{v["player_id"]} - {season} failed.')
-                failed.append(f'{v["player_id"]} - {season}')
-
-
-def get_at_bats(
-    player_id: str,
-    season: int,
-    driver: Optional['selenium.webdriver.chrome.webdriver.WebDriver'] = None,
-    logger: Optional['logging.Logger'] = None,
-    ignore_files: bool = False,
-    save: bool = False,
-    save_filepath: Optional[str] = None,
-    ) -> dict:
+def get_player_abs(  # type: ignore
+        player_id_season: str,
+        webscrape: bool = True,
+        driver: Optional['webdriver'] = None,
+        logger: Optional['logging.Logger'] = None,
+        ignore_files: bool = False,
+        existing_data_folder_path: Optional[str] = None,
+        player_bios_path: Optional[str] = None,
+        save_folder_path: Optional[str] = None,
+        return_data: bool = True,
+        ) -> List[Dict[Any, Any]]:
     '''
     Queries baseballsavant.mlb.com for the statcast gamelogs of a given player
     during a given season.
 
     Args:
-        player_id: mlb.com player ID for the target player
-        season: target season in range 2015 - current year
+        player_id_season: tuple or list of tuples of (player_id, season)
+        webscrape: specify whether data should be scraped if necessary
         driver: selenium webdriver being used to connect to the website
         logger: python logger for backtracing
         ignore_files: ignores if a CSV already exists and scrapes the data
-        save: Saves data to file if true
-        save_filepath: path to save data to if save 
+        existing_data_folder_path: path to folder containing existing player data
+        player_bios_path: path to player_bios.csv, if exists
+        save_folder_path: path to folder to save data
+        return_data: bool to determine if anything will be returned
 
     Returns:
-        atbat_dict: Dictionary of at bats scraped
+        atbat_dict: optional list of dictionaries of at bats scraped
     '''
-    logger.info(f'Attemping to retrieve at-bats for {player_id} in {season}.')
-    atbat_dict = {
-        'player_id':[],
-        'date':[],
-        'opponent':[],
-        'result':[],
-        'ev':[],
-        'la':[],
-        'distance':[],
-        'direction':[],
-        'pitch_velo':[],
-        'pitch_type':[],
-        }
-    info = get_player_bio(player_id, driver)
-    logger.info(f'Bio for {info["name"]} retrieved.')
+    players = []
+    if type(player_id_season) is tuple:  # type: ignore
+        player_id_season = [player_id_season, ]  # type: ignore
+    for player in player_id_season:
+        player_id = player[0]
+        season = player[1]
+        if logger:
+            logger.info(
+                f'Attemping to retrieve at-bats for {player_id} in {season}.'
+                )
+        info = get_player_bio(
+            player_id=player_id,
+            driver=driver,
+            webscrape=webscrape,
+            filepath=player_bios_path
+            )
+        if logger:
+            logger.info(f'Bio for {info["name"]} retrieved.')
 
-    potential_filepath = f'data/at_bats/{info["position"]}/{info["player_id"]}_{season}.csv'
-    if exists(potential_filepath) and not ignore_files:
-        logger.info(f'Existing data for {info["name"]} found for {season}.')
-        return pd.read_csv(potential_filepath).to_dict()
-        
-    if info['position'] == 'P':
-        gamelog_type = 'pitching'
-    else:
-        gamelog_type = 'hitting'
-    atbat_url = f'https://baseballsavant.mlb.com/savant-player/{player_id}?stats=gamelogs-r-{gamelog_type}-statcast&season={season}'
-    driver.get(atbat_url)
-    atbat_table = driver.find_element_by_id('gamelogs_statcast')
-    table_rows = atbat_table.find_elements_by_class_name('default-table-row')
-    for row in table_rows:
-        atbat_dict['player_id'].append(info['player_id'])
-        atbat_dict['date'].append(row.find_element_by_xpath('td[2]').text)
-        atbat_dict['opponent'].append(row.find_element_by_xpath('td[5]').text)
-        atbat_dict['result'].append(row.find_element_by_xpath('td[6]').text)
-        atbat_dict['ev'].append(row.find_element_by_xpath('td[7]').text)
-        atbat_dict['la'].append(row.find_element_by_xpath('td[8]').text)
-        atbat_dict['distance'].append(row.find_element_by_xpath('td[9]').text)
-        atbat_dict['direction'].append(row.find_element_by_xpath('td[10]').text)
-        atbat_dict['pitch_velo'].append(row.find_element_by_xpath('td[11]').text)
-        atbat_dict['pitch_type'].append(row.find_element_by_xpath('td[12]').text)
+        if not ignore_files and existing_data_folder_path:
+            try:
+                filepath = (
+                    f'{existing_data_folder_path}/{info["player_id"]}_{season}.csv'
+                    )
+                atbat_dict = pd.read_csv(filepath).to_dict('list')
+                if logger:
+                    logger.info(
+                        f'Existing data for {info["name"]} found for {season}.'
+                        )
+                if save_folder_path:
+                    save_at_bats(
+                        atbat_dict,
+                        save_folder_path+f'/{player_id}_{season}.csv'
+                        )
+                if return_data:
+                    players.append(atbat_dict)
+                continue
+            except FileNotFoundError as e:
+                if logger:
+                    logger.info(
+                        f'No existing data for {info["name"]} found for {season}.'
+                        )
+                if not webscrape:
+                    raise FileNotFoundError(e)
+        atbat_dict = {
+            'player_id': [],
+            'date': [],
+            'opponent': [],
+            'result': [],
+            'ev': [],
+            'la': [],
+            'distance': [],
+            'direction': [],
+            'pitch_velo': [],
+            'pitch_type': [],
+            }
+        if not driver:
+            driver = create_driver()
+        if info['position'] == 'P':
+            gamelog_type = 'pitching'
+        else:
+            gamelog_type = 'hitting'
+        atbat_url = (
+            f'https://baseballsavant.mlb.com/savant-player/{player_id}?'
+            f'stats=gamelogs-r-{gamelog_type}-statcast&season={season}'
+                    )
+        # attempts to scrape the data 5 times until failing
+        data_scraped = False
+        scrape_attempts = 0
+        while not data_scraped:
+            scrape_attempts += 1
+            try:
+                driver.get(atbat_url)
+            except InvalidSessionIdException:
+                driver = create_driver()
+                driver.get(atbat_url)
+            atbat_table = driver.find_element_by_id('gamelogs_statcast')
+            table_rows = atbat_table.find_elements_by_class_name('default-table-row')
+            if len(table_rows) > 0:
+                data_scraped = True
+            elif scrape_attempts >= 5:
+                raise TimeoutException(
+                    'Data could not be scraped after 5 attempts. Check to ensure'
+                    'the url and element information is correct and try again.'
+                    )
+            else:
+                sleep(5)
+        for row in table_rows:
+            atbat_dict['player_id'].append(info['player_id'])
+            atbat_dict['date'].append(row.find_element_by_xpath('td[2]').text)
+            atbat_dict['opponent'].append(row.find_element_by_xpath('td[5]').text)
+            atbat_dict['result'].append(row.find_element_by_xpath('td[6]').text)
+            atbat_dict['ev'].append(row.find_element_by_xpath('td[7]').text)
+            atbat_dict['la'].append(row.find_element_by_xpath('td[8]').text)
+            atbat_dict['distance'].append(row.find_element_by_xpath('td[9]').text)
+            atbat_dict['direction'].append(row.find_element_by_xpath('td[10]').text)
+            atbat_dict['pitch_velo'].append(row.find_element_by_xpath('td[11]').text)
+            atbat_dict['pitch_type'].append(row.find_element_by_xpath('td[12]').text)
 
-    if len(atbat_dict['player_id']) < 1:
-        logger.info(f'No at-bats for {player_id} in {season}.')
-    else:
-        logger.info(f'At-bats for {info["name"]} in {season} retrieved.')
+        if len(atbat_dict['player_id']) < 1 and logger:
+            logger.info(f'No at-bats for {player_id} in {season}.')
+        elif logger:
+            logger.info(f'At-bats for {info["name"]} in {season} retrieved.')
 
-    if save:
-        save_at_bats(atbat_dict, save_filepath)
+        if save_folder_path:
+            save_at_bats(atbat_dict, save_folder_path+f'/{player_id}_{season}.csv')
+        if return_data:
+            players.append(atbat_dict)
 
-    return atbat_dict
+    if return_data:
+        return players
 
 
-def save_at_bats(at_bats: dict, filepath: str):
+def save_at_bats(at_bats: Dict[Any, Any], filepath: str):
+    '''
+    Saves at bat data to specified filepath.
+
+    args:
+        at_bats: dictionary of at bat data
+        filepath: filepath the data will be saved to
+    '''
+    expected_keys = ['player_id', 'date', 'opponent', 'result', 'ev', 'la',
+            'distance', 'direction', 'pitch_velo', 'pitch_type']
+    actual_keys = list(at_bats.keys())
+    expected_keys.sort()
+    actual_keys.sort()
+    if len(actual_keys) == 0 or expected_keys != actual_keys:
+        raise ValueError(
+            f'Expected dictionary with keys: {expected_keys}.'
+            f'Got: {tuple(at_bats.keys())}'
+            )
     if len(at_bats['player_id']) < 1:
-        print('The dictionary is empty. Aborting...')
-        return
-    pd.DataFrame(at_bats).to_csv(filepath)
+        raise ValueError('The at bat dictionary is empty. Data cannot be saved.')
+    pd.DataFrame(at_bats).to_csv(filepath, index=False)

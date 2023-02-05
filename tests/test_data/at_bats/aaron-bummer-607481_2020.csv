@@ -1,0 +1,45 @@
+player_id,date,opponent,result,ev,la,distance,direction,pitch_velo,pitch_type
+aaron-bummer-607481,2020-10-01,"Semien, Marcus",single,105.0,10,197,Straightaway,95.1,Sinker
+aaron-bummer-607481,2020-10-01,"La Stella, Tommy",strikeout,,,,,84.9,Slider
+aaron-bummer-607481,2020-10-01,"Murphy, Sean",walk,,,,,94.9,Sinker
+aaron-bummer-607481,2020-10-01,"Laureano, Ramon",field_out,89.0,-16,7,Pull,94.5,Sinker
+aaron-bummer-607481,2020-10-01,"Grossman, Robbie",field_out,85.3,-19,3,Pull,96.4,Sinker
+aaron-bummer-607481,2020-09-29,"La Stella, Tommy",force_out,102.4,-6,14,Straightaway,96.6,Sinker
+aaron-bummer-607481,2020-09-26,"Contreras, Willson",field_out,100.6,-55,1,Opposite,96.9,Sinker
+aaron-bummer-607481,2020-09-26,"Wisdom, Patrick",field_out,84.0,54,213,Opposite,95.8,Sinker
+aaron-bummer-607481,2020-09-26,"Hamilton, Billy",strikeout,,,,,84.7,Slider
+aaron-bummer-607481,2020-09-26,"Maybin, Cameron",walk,,,,,96.7,Sinker
+aaron-bummer-607481,2020-09-24,"Hedges, Austin",strikeout,,,,,84.2,Slider
+aaron-bummer-607481,2020-09-24,"Naquin, Tyler",field_out,103.5,33,388,Straightaway,88.8,Cutter
+aaron-bummer-607481,2020-09-24,"Naylor, Josh",force_out,92.4,-39,3,Opposite,96.2,Sinker
+aaron-bummer-607481,2020-09-24,"Reyes, Franmil",single,109.0,8,192,Opposite,95.7,Sinker
+aaron-bummer-607481,2020-08-07,"Hernandez, Cesar",field_error,72.6,-52,1,Pull,95.0,Sinker
+aaron-bummer-607481,2020-08-07,"DeShields, Delino",walk,,,,,95.2,Sinker
+aaron-bummer-607481,2020-08-07,"Leon, Sandy",field_out,107.5,-13,9,Pull,94.9,Sinker
+aaron-bummer-607481,2020-08-07,"Mercado, Oscar",field_out,101.8,-12,12,Straightaway,96.0,Sinker
+aaron-bummer-607481,2020-08-07,"Luplow, Jordan",grounded_into_double_play,107.5,-9,11,Straightaway,94.8,Sinker
+aaron-bummer-607481,2020-08-07,"Reyes, Franmil",walk,,,,,95.5,Sinker
+aaron-bummer-607481,2020-08-07,"Santana, Carlos",single,92.1,12,194,Pull,94.9,Sinker
+aaron-bummer-607481,2020-08-07,"Lindor, Francisco",field_out,97.3,27,377,Straightaway,96.4,Sinker
+aaron-bummer-607481,2020-08-04,"Gamel, Ben",strikeout,,,,,83.1,Slider
+aaron-bummer-607481,2020-08-04,"Narvaez, Omar",field_out,83.4,-34,2,Straightaway,96.2,Sinker
+aaron-bummer-607481,2020-08-04,"Healy, Ryon",strikeout,,,,,94.8,Sinker
+aaron-bummer-607481,2020-08-02,"McBroom, Ryan",strikeout,,,,,83.7,Slider
+aaron-bummer-607481,2020-08-02,"Lopez, Nicky",strikeout,,,,,88.6,Cutter
+aaron-bummer-607481,2020-08-02,"Gordon, Alex",field_out,93.2,-5,20,Straightaway,88.2,Cutter
+aaron-bummer-607481,2020-08-01,"Merrifield, Whit",strikeout,,,,,83.9,Slider
+aaron-bummer-607481,2020-08-01,"Mejia, Erick",field_out,87.8,-28,4,Opposite,96.3,Sinker
+aaron-bummer-607481,2020-08-01,"Starling, Bubba",strikeout,,,,,96.7,Sinker
+aaron-bummer-607481,2020-08-01,"O'Hearn, Ryan",single,103.5,-11,10,Opposite,96.3,Sinker
+aaron-bummer-607481,2020-08-01,"Mondesi, Adalberto",strikeout,,,,,96.5,Sinker
+aaron-bummer-607481,2020-07-29,"Hernandez, Cesar",strikeout,,,,,96.7,Sinker
+aaron-bummer-607481,2020-07-29,"Mercado, Oscar",strikeout,,,,,89.6,Cutter
+aaron-bummer-607481,2020-07-29,"Taylor, Beau",field_out,83.1,-46,2,Straightaway,95.7,Sinker
+aaron-bummer-607481,2020-07-25,"Kepler, Max",strikeout,,,,,96.1,Sinker
+aaron-bummer-607481,2020-07-25,"Gonzalez, Marwin",walk,,,,,96.2,Sinker
+aaron-bummer-607481,2020-07-25,"Rosario, Eddie",field_out,102.7,-17,4,Pull,95.8,Sinker
+aaron-bummer-607481,2020-07-24,"Arraez, Luis",single,84.5,25,263,Pull,85.5,Cutter
+aaron-bummer-607481,2020-07-24,"Sano, Miguel",strikeout,,,,,95.0,Sinker
+aaron-bummer-607481,2020-07-24,"Cave, Jake",strikeout,,,,,87.8,Cutter
+aaron-bummer-607481,2020-07-24,"Garver, Mitch",walk,,,,,94.8,Sinker
+aaron-bummer-607481,2020-07-24,"Rosario, Eddie",single,82.9,-4,16,Straightaway,95.5,Sinker

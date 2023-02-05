@@ -1,22 +1,19 @@
 from typing import Optional
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.utils import ChromeType
-
-from baseball_spider.spider.logger import prep_logger
 
 
 def create_driver(
-    driver_path: Optional[str] = None,
-    driver_options: Optional[f'selenium.webdriver.options'] = None
-    ) -> webdriver:
+        driver_path: Optional[str] = None,
+        driver_options: Optional['webdriver.options'] = None
+        ) -> webdriver:
     '''
     Prepare Selenium webdriver for scraping and setting chromedriver arguments
-    
+
     Args:
         driver_path: path to user defined webdriver. If none, driver is created
         driver_options: options for driver, otherwise uses defaults
-        
+
     Returns:
         selenium driver for webscraping
         logger for logging results
@@ -33,6 +30,7 @@ def create_driver(
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-extensions')
         options.add_argument('--disable-software-rasterizer')
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
     if driver_path:
         driver = webdriver.Chrome(executable_path=driver_path, options=options)
@@ -45,4 +43,4 @@ def create_driver(
                 ).install(),
             options=options)
 
-    return driver, prep_logger('spider')[0]
+    return driver
