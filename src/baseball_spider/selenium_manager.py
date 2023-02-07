@@ -37,9 +37,9 @@ def create_driver(
     else:
         driver = webdriver.Chrome(
             ChromeDriverManager(
-                '93.0.4577.63',
-                log_level=0,
-                print_first_line=False,
+                '109.0.5414.74',
+                # log_level=0,
+                # print_first_line=False,
                 ).install(),
             options=options)
 

@@ -5,7 +5,7 @@ from selenium.common.exceptions import InvalidSessionIdException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
 
-from baseball_spider.spider import at_bats
+from baseball_spider.spider.statcast import at_bats
 
 
 def test_existing_at_bats(trea_2021):
