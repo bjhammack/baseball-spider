@@ -3,6 +3,7 @@ import pandas as pd
 from selenium.common.exceptions import TimeoutException, InvalidSessionIdException
 from selenium.webdriver.common.by import By
 from time import sleep
+from tqdm import tqdm
 from typing import Optional, Dict, Any, List, TYPE_CHECKING
 
 from selenium_manager import create_driver
@@ -24,24 +25,26 @@ def get_stats(  # type: ignore
     during a given season.
 
     Args:
-        player_id_season: tuple or list of tuples of (player_id, season)
-        webscrape: specify whether data should be scraped if necessary
-        driver: selenium webdriver being used to connect to the website
-        logger: python logger for backtracing
-        ignore_files: ignores if a CSV already exists and scrapes the data
-        existing_data_folder_path: path to folder containing existing player data
-        player_bios_path: path to player_bios.csv, if exists
-        save_folder_path: path to folder to save data
+        player_id: mlb.com player ID for given player
+        stat_type: type of stats to scrape
         return_data: bool to determine if anything will be returned
+        save_path: path to save as CSV, if none, stats will not be saved
+        driver: selenium webdriver being used to connect to the website
 
     Returns:
-        atbat_dict: optional list of dictionaries of at bats scraped
+        players: optional list of dictionaries of stats scraped
     '''
     season = None
     players = []
+    failed_players = []
     if type(player_id) in (str, tuple):
         player_id = [player_id, ]
-    for player in player_id:
+    pbar = tqdm(player_id)
+    for player in pbar:
+        pbar.set_description(
+            f'Current: {player if type(player) is str else player[0]}; '
+            f'Failures: {len(failed_players)}'
+            )
         if type(player) is tuple:
             season = player[1]
             player = player[0]
@@ -51,10 +54,11 @@ def get_stats(  # type: ignore
         if not driver:
             driver = create_driver()
         # attempts to scrape the data 5 times until failing
-        data_scraped = False
-        scrape_attempts = 0
-        while not data_scraped:
-            scrape_attempts += 1
+        failed = False
+        scraped = False
+        attempts = 0
+        while not scraped:
+            attempts += 1
             try:
                 driver.get(vars['url'])
             except InvalidSessionIdException:
@@ -68,7 +72,7 @@ def get_stats(  # type: ignore
                     table_headers = table.find_elements(
                         By.CLASS_NAME, 'tr-component-row')
                     test_header = table_headers[0].find_elements(
-                        By.CLASS_NAME, 'th-component-header'#'tablesorter-header-inner'
+                        By.CLASS_NAME, 'th-component-header'
                         )[vars['test_header_index']].text
                     if test_header == vars['test_header']:
                         table_rows = table.find_elements(
@@ -76,25 +80,26 @@ def get_stats(  # type: ignore
                         break
                 except:
                     if i+1 == len(tables):
-                        raise ValueError(f'Unable to find table with correct '
-                            f'headers after checking {len(tables)} tables.')
+                        if len(player_id) == 1:
+                            raise ValueError(f'Unable to find table with correct '
+                                f'headers after checking {len(tables)} tables.')
+                        scraped = True
+                        failed = True
                     pass
 
             if len(table_rows) > 0:
-                data_scraped = True
-            elif scrape_attempts >= 5:
-                exception_text = (
-                    f'Data could not be found for {player} after 5 attempts. '
-                    'Ensure the url and element information are correct and '
-                    'try again.')
-                if len(player_id) > 1:
-                    print(f'{exception_text} Processing other players...')
-                    data_scraped = True
-                    continue
-                else:
-                    raise TimeoutException(exception_text)
+                scraped = True
+            elif attempts >= 5:
+                exc_text = f'Could not find {player} stats after 5 attempts.'
+                if len(player_id) == 1:
+                    raise TimeoutException(exc_text)
+                scraped = True
+                failed = True
             else:
                 sleep(5)
+        if failed:
+            failed_players.append(player)
+            continue
         
         keys = list(stats_dict.keys())
         for row in table_rows:
@@ -114,6 +119,7 @@ def get_stats(  # type: ignore
     if save_path:
         save_data(players, vars['keys'], save_path,)
 
+    print(f'{len(failed_players)} players unable to be scraped.\n{failed_players}')
     if return_data:
         return players
 
@@ -123,7 +129,7 @@ def save_data(players: Dict[Any, Any], expected_keys, filepath: str):
     Saves at bat data to specified filepath.
 
     args:
-        at_bats: dictionary of at bat data
+        players: dictionary containing data
         filepath: filepath the data will be saved to
     '''
     actual_keys = list(players[0].keys())

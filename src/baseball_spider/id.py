@@ -13,14 +13,18 @@ def get_mlb_ids(
         return_data: bool = True,
         save_path: str = None,
         driver: 'webdriver' = None,
-        ):
+        ) -> Dict[str, Any]:
     '''
-    Updates the player ID CSV by pulling a list of all players on mlb.com,
-    retrieving their player IDs and visiting their page to get their information.
+    Collects all player IDs availble on MLB.com. Details on which IDs are
+    available aren't available, but it seems to be all active players.
 
     args:
-        parent_data_dir: parent folder for all locally stored data
+        return_data: bool to determine if anything will be returned
+        save_path: path to save IDs to, if none, IDs will not be saved
         driver: selenium webdriver used to connect to the website
+
+    returns:
+        id_dict: dictionary of player IDs
     '''
     if not driver:
         driver = create_driver()
