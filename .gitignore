@@ -1,6 +1,6 @@
-src/baseball_spider/spider/data/*
-src/baseball_spider/spider/logs/*
-src/baseball_spider/spider/gather_data.py
+src/baseball_spider/data/*
+src/baseball_spider/logs/*
+src/baseball_spider/gather_data.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
